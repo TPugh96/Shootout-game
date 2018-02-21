@@ -2,7 +2,7 @@
 
 #include "MicroBit.h"
 
-struct Point 
+struct Point
 {
     int x;
     int y;
@@ -13,22 +13,21 @@ MicroBit uBit;
 //Creates image same size as screen
 MicroBitImage shootout(5,5);
 Point player;
-Point player2;
+//Point player2;
 Point bullet;
-Point bullet2;
+//Point bullet2;
 int PLAYER_SPEED = 150;
 int BULLET_SPEED = 50;
 int game_over;
 int playerScore = 0;
-int player2Score = 0;
+//int player2Score = 0;
 
 //Changes player position based on tilt of accelerometer
-void playerUpdate() 
+void playerUpdate()
 {
     while(!game_over)
     {
         uBit.sleep(PLAYER_SPEED);
-
         if(uBit.accelerometer.getX() < -300 && player.x > 0)
             player.x--;
         if(uBit.accelerometer.getX() > 300 && player.x < 4)
@@ -38,7 +37,7 @@ void playerUpdate()
 
 //Checks location of bullet, changes it to location of player
 //Triggered by pressing button A
-void fire(MicroBitEvent) 
+void fire(MicroBitEvent)
 {
     if (bullet.y == -1)
     {
@@ -48,7 +47,7 @@ void fire(MicroBitEvent)
 }
 
 //Updates location of bullet, starts at location of player due to fire
-void bulletUpdate() 
+void bulletUpdate()
 {
     while (!game_over)
     {
@@ -65,21 +64,21 @@ void bulletUpdate()
         }
 
         //Checks whether the bullet has hit player 2, if it has a point is given to player 1
-        if (bullet.x == player2.x && bullet.y == player2.y)
+        /*if (bullet.x == player2.x && bullet.y == player2.y)
         {
             playerScore++;
-        }
+        }*/
 
         //Game ends when player points reach 3
-        if (playerScore == 3)
+        /*if (playerScore == 3)
         {
             game_over = 1;
-        }
+        }*/
     }
 }
 
 //Checks whether there is a shield tile at a certain LED, returns 1 if there is
-int checkShield (int x, int y)
+/*int checkShield (int x, int y)
 {
     for(int i = 0; i < 4; i++)
     {
@@ -93,9 +92,9 @@ int checkShield (int x, int y)
         }
     }
 }
-
+*/
 //Bullet movement function for player 2
-void bulletUpdate2()
+/*void bulletUpdate2()
 {
     for(int i = 0; i < 5; i++)
     {
@@ -111,7 +110,7 @@ void bulletUpdate2()
             bullet2.y = -1;
         }
 
-        //If there is a shield tile in the bullets path, both are removed 
+        //If there is a shield tile in the bullets path, both are removed
         if (checkShield(bullet2.x, bullet2.y) == 1)
         {
             shootout.setPixelValue(bullet2.x, 3, 0);
@@ -136,10 +135,10 @@ void bulletUpdate2()
         }
     }
 }
+*/
 
- 
 //Firing function for player 2, not triggered by buttons but as a function
-void fire2()
+/*void fire2()
 {
    if (bullet2.y == -1)
     {
@@ -147,10 +146,10 @@ void fire2()
         bullet2.x = player2.x;
     }
 }
-
+*/
 //Basic enemy ai, moves back and forth across the screen, shooting every time it moves
-void player2AI()
-{   
+/*void player2AI()
+{
     while(!game_over)
     {
         //Moves as far right as possible while shooting
@@ -172,7 +171,7 @@ void player2AI()
     }
 
 }
-
+*/
 //Adds 3 shield tiles centered above the player, these can block bullets
 void shield(MicroBitEvent)
 {
@@ -183,7 +182,7 @@ void shield(MicroBitEvent)
 }
 
 //Is triggered when a player reaches three points, resets the screen and displays winning/losing message
-void gameOver()
+/*void gameOver()
 {
     uBit.display.clear();
     for(int x = 0; x < 5; x++)
@@ -201,19 +200,19 @@ void gameOver()
     game_over = 0;
 
 }
-
+*/
 //Main game function, sets original attributes and triggers most functions
-void shootoutGame() 
+void shootoutGame()
 {
     game_over = 0;
     player.x = 2;
     player.y = 4;
-    player2.x = 2;
-    player2.y = 0;
+    //player2.x = 2;
+    //player2.y = 0;
     bullet.x = -1;
     bullet.y = -1;
-    bullet2.x = -1;
-    bullet2.y = -1;
+    //bullet2.x = -1;
+    //bullet2.y = -1;
 
     //Event handlers for button presses, triggers bullet and shield
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, fire);
@@ -221,22 +220,22 @@ void shootoutGame()
 
     //Individual fibers for moving elements of the game, prevents freezing and general bugginess
     create_fiber(playerUpdate);
-    create_fiber(player2AI);
+    //create_fiber(player2AI);
     create_fiber(bulletUpdate);
 
     //refreshes the screen preventing duplicates of screen elements
-        while (!game_over)
-    {    
+    while (!game_over)
+    {
         uBit.sleep(10);
         uBit.display.image.paste(shootout);
         uBit.display.image.setPixelValue(player.x, player.y, 255);
         uBit.display.image.setPixelValue(bullet.x, bullet.y, 255);
-        uBit.display.image.setPixelValue(player2.x, player2.y, 255);
-        uBit.display.image.setPixelValue(bullet2.x, bullet2.y, 255);
+        //uBit.display.image.setPixelValue(player2.x, player2.y, 255);
+        //uBit.display.image.setPixelValue(bullet2.x, bullet2.y, 255);
     }
 
-    if(game_over == 1)
-        gameOver();
+    //if(game_over == 1)
+        //gameOver();
 
 }
 
@@ -248,6 +247,7 @@ int main()
     //Title message
     uBit.display.scroll("Shootout");
 
-    while (1)
+    while (1) {
         shootoutGame();
+    }
 }
