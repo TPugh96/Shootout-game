@@ -17,7 +17,7 @@ Point player;
 Point bullet;
 //Point bullet2;
 int PLAYER_SPEED = 150;
-int BULLET_SPEED = 50;
+int BULLET_SPEED = 100;
 int game_over;
 int playerScore = 0;
 //int player2Score = 0;
