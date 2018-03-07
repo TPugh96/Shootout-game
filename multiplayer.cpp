@@ -181,7 +181,7 @@ void bulletUpdate()
             bullet.y--;
 
         //If bullet goes out of bounds it is reset until fire is triggered again
-        if (shootout.getPixelValue(bullet.x, bullet.y) > 0)
+        if (bullet.y == -1)
         {
             bulletX = bullet.x;
             send(bulletX);
@@ -253,17 +253,6 @@ void bulletUpdate()
 }
 */
 
-//Firing function for player 2, not triggered by buttons but as a function
-/*void fire2()
-{
-   if (bullet2.y == -1)
-    {
-        bullet2.y = 0;
-        bullet2.x = player2.x;
-    }
-}
-*/
-
 //Adds 3 shield tiles centered above the player, these can block bullets
 void shield(MicroBitEvent)
 {
@@ -273,26 +262,6 @@ void shield(MicroBitEvent)
     }
 }
 
-//Is triggered when a player reaches three points, resets the screen and displays winning/losing message
-/*void gameOver()
-{
-    uBit.display.clear();
-    for(int x = 0; x < 5; x++)
-    {
-        shootout.setPixelValue(x, 3, 0);
-    }
-
-    if(playerScore == 3)
-        uBit.display.scroll("Congratulations");
-    if(player2Score == 3)
-        uBit.display.scroll("Unlucky");
-
-    playerScore = 0;
-    player2Score = 0;
-    game_over = 0;
-
-}
-*/
 //Main game function, sets original attributes and triggers most functions
 void shootoutGame()
 {
