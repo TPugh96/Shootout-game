@@ -30,7 +30,7 @@ void incomingFire(int bulletX)
     if (incomingBullet.y == -1)
     {
         incomingBullet.x = bulletX;
-        incomingBullet.y = 4;
+        incomingBullet.y = 0;
     }
 }
 
@@ -95,17 +95,17 @@ void send(int bulletX){
 
 int decode(int received[]){
   if ((received[0] == 0) & (received[1] == 0) & (received[2] == 1)){
-    return 1;
-  } else if ((received[0] == 0) & (received[1] == 1) & (received[2] == 0)){
-    return 2;
-  } else if ((received[0] == 0) & (received[1] == 1) & (received[2] == 1)){
-    return 3;
-  } else if ((received[0] == 1) & (received[1] == 0) & (received[2] == 0)){
-    return 4;
-  } else if ((received[0] == 1) & (received[1] == 0) & (received[2] == 1)){
-    return 5;
-  } else {
     return 0;
+  } else if ((received[0] == 0) & (received[1] == 1) & (received[2] == 0)){
+    return 1;
+  } else if ((received[0] == 0) & (received[1] == 1) & (received[2] == 1)){
+    return 2;
+  } else if ((received[0] == 1) & (received[1] == 0) & (received[2] == 0)){
+    return 3;
+  } else if ((received[0] == 1) & (received[1] == 0) & (received[2] == 1)){
+    return 4;
+  } else {
+    return 5;
   }
 }
 
@@ -189,18 +189,6 @@ void bulletUpdate()
             bullet.x = -1;
             bullet.y = -1;
         }
-
-        //Checks whether the bullet has hit player 2, if it has a point is given to player 1
-        /*if (bullet.x == player2.x && bullet.y == player2.y)
-        {
-            playerScore++;
-        }*/
-
-        //Game ends when player points reach 3
-        /*if (playerScore == 3)
-        {
-            game_over = 1;
-        }*/
     }
 }
 
