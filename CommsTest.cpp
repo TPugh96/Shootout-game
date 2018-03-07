@@ -97,20 +97,20 @@ void send(bulletX){
   }
 }
 
-void runProgram(){
+// void runProgram(){
 
-  create_fiber(listen);
-  create_fiber(send);
-  //uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, send, MESSAGE_BUS_LISTENER_IMMEDIATE);
+//   create_fiber(listen);
+//   create_fiber(send);
+//   //uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, send, MESSAGE_BUS_LISTENER_IMMEDIATE);
 
-  while (true){
-    uBit.sleep(1);
-    for (int k = 0 ; k < 3 ; k++){
-      uBit.display.scroll(binary[k]);
-    }
-    uBit.display.scroll("X");
-  }
-}
+//   while (true){
+//     uBit.sleep(1);
+//     for (int k = 0 ; k < 3 ; k++){
+//       uBit.display.scroll(binary[k]);
+//     }
+//     uBit.display.scroll("X");
+//   }
+// }
 
 
 int main (){

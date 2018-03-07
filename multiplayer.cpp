@@ -227,6 +227,7 @@ void shootoutGame()
     create_fiber(playerUpdate);
     create_fiber(bulletUpdate);
     create_fiber(incomingBulletUpdate);
+    create_fiber(listen);
 
     //refreshes the screen preventing duplicates of screen elements
     while (!game_over)
