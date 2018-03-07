@@ -252,6 +252,9 @@ int main()
     //Title message
     uBit.display.scroll("Shootout");
 
+    P0.setDigitalValue(0);
+    P1.setDigitalValue(0);
+
     while (1) {
         shootoutGame();
     }

@@ -113,13 +113,3 @@ void send(bulletX){
 //   }
 // }
 
-
-int main (){
-  uBit.init();
-  P0.setDigitalValue(0);
-  P1.setDigitalValue(0);
-  uBit.display.scroll("z");
-  while(true){
-    runProgram();
-  }
-}
