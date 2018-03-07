@@ -180,7 +180,7 @@ void bulletUpdate()
             bullet.y--;
 
         //If bullet goes out of bounds it is reset until fire is triggered again
-        if (bullet.y < 0)
+        if (bullet.y == -1)
         {
             int bulletX;
             bulletX = bullet.x;
