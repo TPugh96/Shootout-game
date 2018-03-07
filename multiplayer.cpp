@@ -162,7 +162,7 @@ void incomingBulletUpdate() {
 //Triggered by pressing button A
 void fire(MicroBitEvent)
 {
-    if (bullet.y == 5)
+    if (bullet.y == -1)
     {
         bullet.y = 4;
         bullet.x = player.x;
@@ -176,7 +176,7 @@ void bulletUpdate()
     while (!game_over)
     {
         uBit.sleep(BULLET_SPEED);
-        if (bullet.y != 5)
+        if (bullet.y != -1)
             bullet.y--;
 
         //If bullet goes out of bounds it is reset until fire is triggered again
@@ -186,8 +186,8 @@ void bulletUpdate()
             bulletX = bullet.x;
             send(bulletX);
             shootout.setPixelValue(bullet.x, bullet.y, 0);
-            bullet.x = 5;
-            bullet.y = 5;
+            bullet.x = -1;
+            bullet.y = -1;
         }
     }
 }
@@ -268,8 +268,8 @@ void shootoutGame()
     game_over = 0;
     player.x = 2;
     player.y = 4;
-    bullet.x = 5;
-    bullet.y = 5;
+    bullet.x = -1;
+    bullet.y = -1;
     incomingBullet.x = -1;
     incomingBullet.y = -1;
 
@@ -278,10 +278,10 @@ void shootoutGame()
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, shield);
 
     //Individual fibers for moving elements of the game, prevents freezing and general bugginess
-    create_fiber(playerUpdate);
-    create_fiber(bulletUpdate);
     create_fiber(incomingBulletUpdate);
     create_fiber(listen);
+    create_fiber(playerUpdate);
+    create_fiber(bulletUpdate);
 
     //refreshes the screen preventing duplicates of screen elements
     while (!game_over)
