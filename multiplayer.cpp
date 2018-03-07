@@ -24,6 +24,7 @@ int PLAYER_SPEED = 150;
 int BULLET_SPEED = 100;
 int game_over;
 int playerScore = 0;
+int bulletX;
 
 void incomingFire(int bulletX)
 {
@@ -162,6 +163,8 @@ void incomingBulletUpdate() {
 //Triggered by pressing button A
 void fire(MicroBitEvent)
 {
+    bulletX = player.x;
+    send(bulletX);
     if (bullet.y == -1)
     {
         bullet.y = 4;
@@ -182,9 +185,6 @@ void bulletUpdate()
         //If bullet goes out of bounds it is reset until fire is triggered again
         if (shootout.getPixelValue(bullet.x, bullet.y) > 0)
         {
-            int bulletX;
-            bulletX = bullet.x;
-            send(bulletX);
             shootout.setPixelValue(bullet.x, bullet.y, 0);
             bullet.x = -1;
             bullet.y = -1;
