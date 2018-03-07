@@ -24,7 +24,6 @@ int PLAYER_SPEED = 150;
 int BULLET_SPEED = 100;
 int game_over;
 int playerScore = 0;
-int bulletX;
 
 void incomingFire(int bulletX)
 {
@@ -163,7 +162,7 @@ void incomingBulletUpdate() {
 //Triggered by pressing button A
 void fire(MicroBitEvent)
 {
-    bulletX = player.x;
+    int bulletX = player.x;
     send(bulletX);
     if (bullet.y == -1)
     {
