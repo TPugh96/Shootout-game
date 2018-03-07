@@ -1,6 +1,6 @@
 //Author: Thomas Pugh (16021460)
 
-#include "MicroBit.h"
+#include "Shootout.h"
 
 struct Point
 {
@@ -13,14 +13,12 @@ MicroBit uBit;
 //Creates image same size as screen
 MicroBitImage shootout(5,5);
 Point player;
-//Point player2;
 Point bullet;
-//Point bullet2;
+Point incomingBullet;
 int PLAYER_SPEED = 150;
 int BULLET_SPEED = 100;
 int game_over;
 int playerScore = 0;
-//int player2Score = 0;
 
 //Changes player position based on tilt of accelerometer
 void playerUpdate()
@@ -46,9 +44,39 @@ void fire(MicroBitEvent)
     }
 }
 
+void incomingBulletUpdate() {
+    while (!game_over)
+    {  
+        uBit.sleep(BULLET_SPEED);
+        if (incomingBullet.y != -1)
+        {
+            incomingBullet.y++;
+        }
+
+        //If bullet goes out of bounds it is reset until fire is triggered again
+        if (incomingBullet.y > 4)
+        {
+            shootout.setPixelValue(incomingBullet.x, incomingBullet.y, 0);
+            incomingBullet.x = -1;
+            incomingBullet.y = -1;
+        } 
+    }
+}
+
+void incomingFire(bulletX) 
+{
+    if (incomingBullet.y == -1)
+    {
+        incomingBullet.x = bulletX;
+        incomingBullet.y = 4;
+    }
+}
+
 //Updates location of bullet, starts at location of player due to fire
 void bulletUpdate()
 {
+    int bulletX;
+
     while (!game_over)
     {
         uBit.sleep(BULLET_SPEED);
@@ -58,6 +86,8 @@ void bulletUpdate()
         //If bullet goes out of bounds it is reset until fire is triggered again
         if (shootout.getPixelValue(bullet.x, bullet.y) > 0)
         {
+            bulletX = bullet.x;
+            send(bulletX);
             shootout.setPixelValue(bullet.x, bullet.y, 0);
             bullet.x = -1;
             bullet.y = -1;
@@ -96,6 +126,7 @@ void bulletUpdate()
 //Bullet movement function for player 2
 /*void bulletUpdate2()
 {
+
     for(int i = 0; i < 5; i++)
     {
         uBit.sleep(100);
@@ -147,31 +178,7 @@ void bulletUpdate()
     }
 }
 */
-//Basic enemy ai, moves back and forth across the screen, shooting every time it moves
-/*void player2AI()
-{
-    while(!game_over)
-    {
-        //Moves as far right as possible while shooting
-        while(player2.x < 4)
-        {
-            uBit.sleep(PLAYER_SPEED);
-            player2.x++;
-            fire2();
-            bulletUpdate2();
-        }
-        //Moves as far left as possible while shooting
-        while(player2.x > 0)
-        {
-            uBit.sleep(PLAYER_SPEED);
-            player2.x--;
-            fire2();
-            bulletUpdate2();
-        }
-    }
 
-}
-*/
 //Adds 3 shield tiles centered above the player, these can block bullets
 void shield(MicroBitEvent)
 {
@@ -207,12 +214,10 @@ void shootoutGame()
     game_over = 0;
     player.x = 2;
     player.y = 4;
-    //player2.x = 2;
-    //player2.y = 0;
     bullet.x = -1;
     bullet.y = -1;
-    //bullet2.x = -1;
-    //bullet2.y = -1;
+    incomingBullet.x = -1;
+    incomingBullet.y = -1;
 
     //Event handlers for button presses, triggers bullet and shield
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, fire);
@@ -220,8 +225,8 @@ void shootoutGame()
 
     //Individual fibers for moving elements of the game, prevents freezing and general bugginess
     create_fiber(playerUpdate);
-    //create_fiber(player2AI);
     create_fiber(bulletUpdate);
+    create_fiber(incomingBulletUpdate);
 
     //refreshes the screen preventing duplicates of screen elements
     while (!game_over)
@@ -230,8 +235,6 @@ void shootoutGame()
         uBit.display.image.paste(shootout);
         uBit.display.image.setPixelValue(player.x, player.y, 255);
         uBit.display.image.setPixelValue(bullet.x, bullet.y, 255);
-        //uBit.display.image.setPixelValue(player2.x, player2.y, 255);
-        //uBit.display.image.setPixelValue(bullet2.x, bullet2.y, 255);
     }
 
     //if(game_over == 1)

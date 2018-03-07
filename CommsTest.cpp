@@ -4,8 +4,7 @@ MicroBit uBit;
 MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_ALL);
 MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL);
 int binary[3];
-int y_value;
-int value = 5;
+int x_value;
 
 int decode(int received[]){
   if ((received[0] == 0) & (received[1] == 0) & (received[2] == 1)){
@@ -33,17 +32,18 @@ void listen(){
       wait_ms(25);
       binary[2] = P1.getDigitalValue();
       wait_ms(25);
-      y_value = decode(binary);
+      x_value = decode(binary);
+      incomingFire(x_value);
     }
     uBit.sleep(1);
   }
 }
 
-void send(){
+void send(bulletX){
   //Will be turned into a multi use function with paramenters. Currently used for testing.
   while (true){
-    switch(value){
-      case 1:
+    switch(bulletX){
+      case 0:
         P0.setDigitalValue(1);
         wait_ms(25);
         P0.setDigitalValue(0);
@@ -53,6 +53,16 @@ void send(){
         P0.setDigitalValue(1);
         P0.setDigitalValue(0); // These last ones were put in to try and clear the inputs.
       break;
+      case 1:
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        wait_ms(25);
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        P0.setDigitalValue(0);
+      break;
       case 2:
         P0.setDigitalValue(1);
         wait_ms(25);
@@ -60,30 +70,20 @@ void send(){
         wait_ms(25);
         P0.setDigitalValue(1);
         wait_ms(25);
-        P0.setDigitalValue(0);
+        P0.setDigitalValue(1);
         P0.setDigitalValue(0);
       break;
       case 3:
         P0.setDigitalValue(1);
         wait_ms(25);
+        P0.setDigitalValue(1);
+        wait_ms(25);
         P0.setDigitalValue(0);
         wait_ms(25);
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(1);
+        P0.setDigitalValue(0);
         P0.setDigitalValue(0);
       break;
       case 4:
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        P0.setDigitalValue(0);
-      break;
-      case 5:
         P0.setDigitalValue(1);
         wait_ms(25);
         P0.setDigitalValue(1);
