@@ -120,7 +120,7 @@ void listen(){
       binary[2] = P1.getDigitalValue();
       wait_ms(25);
       x_value = decode(binary);
-      incomingFire(x_value);
+      incomingFire(2);
     }
     uBit.sleep(1);
   }
@@ -149,7 +149,7 @@ void incomingBulletUpdate() {
         }
 
         //If bullet goes out of bounds it is reset until fire is triggered again
-        if (incomingBullet.y > 4)
+        if (shootout.getPixelValue(incomingBullet.x, incomingBullet.y) > 0)
         {
             shootout.setPixelValue(incomingBullet.x, incomingBullet.y, 0);
             incomingBullet.x = -1;
