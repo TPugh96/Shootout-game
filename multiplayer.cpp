@@ -1,6 +1,7 @@
 //Author: Thomas Pugh (16021460)
 
-#include "Shootout.h"
+#include "MicroBit.h"
+#include "CommsTest.cpp"
 
 struct Point
 {
@@ -33,17 +34,6 @@ void playerUpdate()
     }
 }
 
-//Checks location of bullet, changes it to location of player
-//Triggered by pressing button A
-void fire(MicroBitEvent)
-{
-    if (bullet.y == -1)
-    {
-        bullet.y = 4;
-        bullet.x = player.x;
-    }
-}
-
 void incomingBulletUpdate() {
     while (!game_over)
     {  
@@ -69,6 +59,17 @@ void incomingFire(bulletX)
     {
         incomingBullet.x = bulletX;
         incomingBullet.y = 4;
+    }
+}
+
+//Checks location of bullet, changes it to location of player
+//Triggered by pressing button A
+void fire(MicroBitEvent)
+{
+    if (bullet.y == -1)
+    {
+        bullet.y = 4;
+        bullet.x = player.x;
     }
 }
 

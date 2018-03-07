@@ -1,4 +1,5 @@
 #include "MicroBit.h"
+#include "multiplayer.cpp"
 
 MicroBit uBit;
 MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_ALL);
