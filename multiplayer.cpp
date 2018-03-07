@@ -1,7 +1,6 @@
 //Author: Thomas Pugh (16021460)
 
 #include "MicroBit.h"
-#include "CommsTest.cpp"
 
 struct Point
 {
@@ -11,6 +10,11 @@ struct Point
 
 
 MicroBit uBit;
+MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_ALL);
+MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL);
+int binary[3];
+int x_value;
+
 //Creates image same size as screen
 MicroBitImage shootout(5,5);
 Point player;
@@ -20,6 +24,107 @@ int PLAYER_SPEED = 150;
 int BULLET_SPEED = 100;
 int game_over;
 int playerScore = 0;
+
+void incomingFire(int bulletX)
+{
+    if (incomingBullet.y == -1)
+    {
+        incomingBullet.x = bulletX;
+        incomingBullet.y = 4;
+    }
+}
+
+
+void send(int bulletX){
+  //Will be turned into a multi use function with paramenters. Currently used for testing.
+  while (true){
+    switch(bulletX){
+      case 0:
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        wait_ms(25);
+        P0.setDigitalValue(1);
+        P0.setDigitalValue(0); // These last ones were put in to try and clear the inputs.
+      break;
+      case 1:
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        wait_ms(25);
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        P0.setDigitalValue(0);
+      break;
+      case 2:
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        wait_ms(25);
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(1);
+        P0.setDigitalValue(0);
+      break;
+      case 3:
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        P0.setDigitalValue(0);
+      break;
+      case 4:
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(1);
+        wait_ms(25);
+        P0.setDigitalValue(0);
+        wait_ms(25);
+        P0.setDigitalValue(1);
+        P0.setDigitalValue(0);
+    }
+    uBit.sleep(1);
+  }
+}
+
+int decode(int received[]){
+  if ((received[0] == 0) & (received[1] == 0) & (received[2] == 1)){
+    return 1;
+  } else if ((received[0] == 0) & (received[1] == 1) & (received[2] == 0)){
+    return 2;
+  } else if ((received[0] == 0) & (received[1] == 1) & (received[2] == 1)){
+    return 3;
+  } else if ((received[0] == 1) & (received[1] == 0) & (received[2] == 0)){
+    return 4;
+  } else if ((received[0] == 1) & (received[1] == 0) & (received[2] == 1)){
+    return 5;
+  } else {
+    return 0;
+  }
+}
+
+void listen(){
+  while (true){
+    if (P1.getDigitalValue() == 1){
+      wait_ms(25);
+      binary[0] = P1.getDigitalValue();
+      wait_ms(25);
+      binary[1] = P1.getDigitalValue();
+      wait_ms(25);
+      binary[2] = P1.getDigitalValue();
+      wait_ms(25);
+      x_value = decode(binary);
+      incomingFire(x_value);
+    }
+    uBit.sleep(1);
+  }
+}
 
 //Changes player position based on tilt of accelerometer
 void playerUpdate()
@@ -36,7 +141,7 @@ void playerUpdate()
 
 void incomingBulletUpdate() {
     while (!game_over)
-    {  
+    {
         uBit.sleep(BULLET_SPEED);
         if (incomingBullet.y != -1)
         {
@@ -49,16 +154,7 @@ void incomingBulletUpdate() {
             shootout.setPixelValue(incomingBullet.x, incomingBullet.y, 0);
             incomingBullet.x = -1;
             incomingBullet.y = -1;
-        } 
-    }
-}
-
-void incomingFire(bulletX) 
-{
-    if (incomingBullet.y == -1)
-    {
-        incomingBullet.x = bulletX;
-        incomingBullet.y = 4;
+        }
     }
 }
 
