@@ -172,7 +172,6 @@ void fire(MicroBitEvent)
 //Updates location of bullet, starts at location of player due to fire
 void bulletUpdate()
 {
-    int bulletX;
 
     while (!game_over)
     {
@@ -181,8 +180,9 @@ void bulletUpdate()
             bullet.y--;
 
         //If bullet goes out of bounds it is reset until fire is triggered again
-        if (bullet.y == -1)
+        if (bullet.y < 0)
         {
+            int bulletX;
             bulletX = bullet.x;
             send(bulletX);
             shootout.setPixelValue(bullet.x, bullet.y, 0);
