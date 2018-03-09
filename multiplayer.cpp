@@ -1,5 +1,3 @@
-//Author: Thomas Pugh (16021460)
-
 #include "MicroBit.h"
 
 #define BIT_TIME 20
@@ -16,9 +14,8 @@ MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_ALL);
 MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL);
 
 //Encryption Stuff
-int sendIndex = 0;
-int receiveIndex = 0;
-ManagedString password("Password123"); // Worlds strongest password, 10% of the time it works 100% of the time.
+int password = 111;
+
 
 //Creates image same size as screen
 MicroBitImage shootout(5,5);
@@ -50,10 +47,9 @@ uint8_t getBits() {
     }
 
     // XOR Decryption.
-    /*receiveIndex += 1;
-    receiveIndex %= password.length();
-    bits ^= password.toCharArray()[receiveIndex];
-    bits &= 0x7;*/
+    bits ^= password;
+    bits &= 0x7;
+
 
     return bits;
 }
@@ -68,10 +64,9 @@ void sendBits(uint8_t bits) {
     uBit.sleep(BIT_TIME);
 
     // XOR Encryption.
-    /*sendIndex += 1;
-    sendIndex %= password.length();
-    bits ^= password.toCharArray()[sendIndex];*/
+    bits ^= password;
 
+    //uBit.serial.send((int)bits);
     // Send the good stuff.
     for (int i = 2; i >= 0; i--) {
         int bit = (bits >> i) & 0x01;
@@ -186,6 +181,8 @@ void listen(){
       break;
       case 6: winner = true;
               game_over = true;
+      break;
+      case 7:
       break;
     }
   }
