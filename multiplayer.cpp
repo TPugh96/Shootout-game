@@ -2,6 +2,8 @@
 
 #include "MicroBit.h"
 
+#define BIT_TIME 20
+
 struct Point
 {
     int x;
@@ -14,6 +16,11 @@ MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_ALL);
 MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL);
 int binary[3];
 int x_value;
+
+//Encryption Stuff
+int sendIndex = 0;
+int receiveIndex = 0;
+ManagedString password("Password123"); // Worlds strongest password, 10% of the time it works 100% of the time.
 
 //Creates image same size as screen
 MicroBitImage shootout(5,5);
@@ -34,96 +41,53 @@ void incomingFire(int bulletX)
     }
 }
 
+uint8_t getBits() {
+    // Tell server we'd like some data. Pretty please. :-)
+    uBit.io.P1.setDigitalValue(1);
+    uBit.sleep(BIT_TIME);
+    uBit.io.P1.setDigitalValue(0);
+    uBit.io.P1.getDigitalValue(); // Let DAL know we're now fetching.
+    uBit.sleep(BIT_TIME);
 
-void send(int bulletX){
-  //Will be turned into a multi use function with paramenters. Currently used for testing.
-  while (true){
-    switch(bulletX){
-      case 0:
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        wait_ms(25);
-        P0.setDigitalValue(1);
-        P0.setDigitalValue(0); // These last ones were put in to try and clear the inputs.
-      break;
-      case 1:
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        wait_ms(25);
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        P0.setDigitalValue(0);
-      break;
-      case 2:
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        wait_ms(25);
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(1);
-        P0.setDigitalValue(0);
-      break;
-      case 3:
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        P0.setDigitalValue(0);
-      break;
-      case 4:
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(1);
-        wait_ms(25);
-        P0.setDigitalValue(0);
-        wait_ms(25);
-        P0.setDigitalValue(1);
-        P0.setDigitalValue(0);
+    uint8_t bits = 0;
+
+    // Retrieve the good stuff.
+    for (int i = 0; i < 3; i++) {
+        int bit = uBit.io.P1.getDigitalValue();
+        bits <<= 1;
+        bits += bit;
+        uBit.sleep(BIT_TIME);
     }
-    uBit.sleep(1);
-  }
+
+    // XOR Decryption.
+    /*receiveIndex += 1;
+    receiveIndex %= password.length();
+    bits ^= password.toCharArray()[receiveIndex];
+    bits &= 0x7;*/
+
+    return bits;
 }
 
-int decode(int received[]){
-  if ((received[0] == 0) & (received[1] == 0) & (received[2] == 1)){
-    return 0;
-  } else if ((received[0] == 0) & (received[1] == 1) & (received[2] == 0)){
-    return 1;
-  } else if ((received[0] == 0) & (received[1] == 1) & (received[2] == 1)){
-    return 2;
-  } else if ((received[0] == 1) & (received[1] == 0) & (received[2] == 0)){
-    return 3;
-  } else if ((received[0] == 1) & (received[1] == 0) & (received[2] == 1)){
-    return 4;
-  } else {
-    return 5;
-  }
-}
-
-void listen(){
-  while (true){
-    if (P1.getDigitalValue() == 1){
-      wait_ms(25);
-      binary[0] = P1.getDigitalValue();
-      wait_ms(25);
-      binary[1] = P1.getDigitalValue();
-      wait_ms(25);
-      binary[2] = P1.getDigitalValue();
-      wait_ms(25);
-      x_value = decode(binary);
-      incomingFire(2);
+void sendBits(uint8_t bits) {
+    // Wait until this data has been requested.
+    while (uBit.io.P0.getDigitalValue() == 0) {
+        uBit.sleep(BIT_TIME);
     }
-    uBit.sleep(1);
-  }
+
+    // Allow client micro:bit to update status to read.
+    uBit.sleep(BIT_TIME);
+
+    // XOR Encryption.
+    /*sendIndex += 1;
+    sendIndex %= password.length();
+    bits ^= password.toCharArray()[sendIndex];*/
+
+    // Send the good stuff.
+    for (int i = 2; i >= 0; i--) {
+        int bit = (bits >> i) & 0x01;
+        uBit.io.P0.setDigitalValue(bit);
+        uBit.sleep(BIT_TIME);
+    }
 }
 
 //Changes player position based on tilt of accelerometer
@@ -162,8 +126,6 @@ void incomingBulletUpdate() {
 //Triggered by pressing button A
 void fire(MicroBitEvent)
 {
-    int bulletX = player.x;
-    send(bulletX);
     if (bullet.y == -1)
     {
         bullet.y = 4;
@@ -174,14 +136,20 @@ void fire(MicroBitEvent)
 //Updates location of bullet, starts at location of player due to fire
 void bulletUpdate()
 {
-
     while (!game_over)
     {
         uBit.sleep(BULLET_SPEED);
-        if (bullet.y != -1)
-            bullet.y--;
 
-        //If bullet goes out of bounds it is reset until fire is triggered again
+        if (bullet.y > -1){
+          bullet.y--;
+        }
+
+        if (bullet.y == 0){
+          sendBits(bullet.x);
+          bullet.x = -1;
+        }
+
+        //If bullet collides with shield, reset bullet.
         if (shootout.getPixelValue(bullet.x, bullet.y) > 0)
         {
             shootout.setPixelValue(bullet.x, bullet.y, 0);
@@ -207,58 +175,32 @@ void bulletUpdate()
     }
 }
 */
-//Bullet movement function for player 2
-/*void bulletUpdate2()
-{
-
-    for(int i = 0; i < 5; i++)
-    {
-        uBit.sleep(100);
-        if (bullet2.y != -1)
-        {
-            bullet2.y++;
-        }
-        if (bullet2.y > 4)
-        {
-            shootout.setPixelValue(bullet2.x, bullet2.y, 0);
-            bullet2.x = -1;
-            bullet2.y = -1;
-        }
-
-        //If there is a shield tile in the bullets path, both are removed
-        if (checkShield(bullet2.x, bullet2.y) == 1)
-        {
-            shootout.setPixelValue(bullet2.x, 3, 0);
-            bullet2.x = -1;
-            bullet2.y = -1;
-            shootout.setPixelValue(bullet2.x, 3, 0);
-        }
-
-        //Checks whether bullet has hit player, if so bullet is reset and point added to player 2
-        if (bullet2.x == player.x && bullet2.y == player.y)
-        {
-            player2Score++;
-            shootout.setPixelValue(bullet2.x, bullet2.y, 0);
-            bullet2.x = -1;
-            bullet2.y = -1;
-        }
-
-        //Game ends if player 2 score reaches 3
-        if (player2Score == 3)
-        {
-            game_over = 1;
-        }
-    }
-}
-*/
 
 //Adds 3 shield tiles centered above the player, these can block bullets
-void shield(MicroBitEvent)
+/*void shield(MicroBitEvent)
 {
     for(int x = player.x - 1; x < player.x + 2; x++)
     {
         shootout.setPixelValue(x, 3, 255);
     }
+}*/
+
+void listen(){
+  while (!game_over){
+    uBit.sleep(1);
+    switch ((int)getBits()){
+      case 0: incomingFire(0);
+      break;
+      case 1: incomingFire(1);
+      break;
+      case 2: incomingFire(2);
+      break;
+      case 3: incomingFire(3);
+      break;
+      case 4: incomingFire(4);
+      break;
+    }
+  }
 }
 
 //Main game function, sets original attributes and triggers most functions
@@ -274,11 +216,11 @@ void shootoutGame()
 
     //Event handlers for button presses, triggers bullet and shield
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, fire);
-    uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, shield);
+    //uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, shield);
 
     //Individual fibers for moving elements of the game, prevents freezing and general bugginess
-    create_fiber(incomingBulletUpdate);
     create_fiber(listen);
+    create_fiber(incomingBulletUpdate);
     create_fiber(playerUpdate);
     create_fiber(bulletUpdate);
 
@@ -300,9 +242,10 @@ int main()
 {
     // Initialise the micro:bit runtime.
     uBit.init();
+    //uBit.display.setDisplayMode(DISPLAY_MODE_BLACK_AND_WHITE);
 
     //Title message
-    uBit.display.scroll("Shootout");
+    uBit.display.scroll("SHOOTOUT!");
 
     P0.setDigitalValue(0);
     P1.setDigitalValue(0);
